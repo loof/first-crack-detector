@@ -1,3 +1,5 @@
+import atexit
+import json
 import os
 import threading
 import sox
@@ -7,34 +9,34 @@ from pyAudioAnalysis import audioTrainTest as aT
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
+data_dir = './data'
+
+
 class MyEventHandler(FileSystemEventHandler):
 
-    def on_modified(self, event):
-        print(event.src_path, "modified.")
-
     def on_created(self, event):
-        result = aT.file_classification(event.src_path, "svmSMtemp","svm")
-        f = open("myfile.txt", "a")
-        f.write(str(result[1][0]))
-        f.close()
+        try:
+            result = aT.file_classification(event.src_path, "svmFirstCrack", "svm")
+            if (result[1][0] > 0.5):
+                print("Crack")
+            else:
+                print("Environment")
 
-    def on_moved(self, event):
-        print(event.src_path, "moved to", event.dest_path)
-
-    def on_deleted(self, event):
-        print(event.src_path, "deleted.")
+        except:
+            print("Error")
 
 
-#aT.extract_features_and_train(["classifierData/crack","classifierData/environment"], 1.0, 1.0, aT.shortTermWindow, aT.shortTermStep, "svm", "svmFirstCrack", False)
-#aT.file_classification("data/doremi.wav", "svmSMtemp","svm")
+# aT.extract_features_and_train(["classifierData/crack","classifierData/environment"], 1.0, 1.0, aT.shortTermWindow, aT.shortTermStep, "svm", "svmFirstCrack", False)
+# aT.file_classification("data/doremi.wav", "svmSMtemp","svm")
 
 def task1():
-    args = ['-t', 'waveaudio', '-d', 'audio.wav', 'trim', '0', '01',  ':', 'newfile', ':', 'restart']
+    args = ['-t', 'waveaudio', '-d', data_dir + '/audio.wav', 'trim', '0', '01', ':', 'newfile', ':', 'restart']
     sox.core.sox(args)
+
 
 def task2():
     observer = Observer()
-    observer.schedule(MyEventHandler(), "./data", recursive=False)
+    observer.schedule(MyEventHandler(), "./" + data_dir, recursive=False)
     observer.start()
     try:
         while observer.is_alive():
@@ -44,19 +46,27 @@ def task2():
     observer.join()
 
 
+def remove_files():
+    for filename in os.listdir('./' + data_dir):
+        if os.path.isfile(os.path.join(data_dir, filename)):
+            os.remove(os.path.join(data_dir, filename))
+
+
+atexit.register(remove_files)
+
 
 def main():
     # Use a breakpoint in the code line below to debug your script.
 
-    threads = list()
-    threads.append(threading.Thread(target=task1, args=()))
-    threads.append(threading.Thread(target=task2, args=()))
+    threads = [threading.Thread(target=task1, args=()), threading.Thread(target=task2, args=())]
 
     for t in threads:
         t.start()
 
     for t in threads:
         t.join()
+
+    print("here")
 
 
 # Press the green button in the gutter to run the script.
