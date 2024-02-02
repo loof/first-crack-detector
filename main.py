@@ -1,6 +1,7 @@
 import atexit
 import json
 import os
+import pathlib
 import threading
 import sox
 from pathlib import Path
@@ -10,33 +11,38 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 data_dir = './data'
+audio_file_output_name = 'audio.wav'
 
 
 class MyEventHandler(FileSystemEventHandler):
 
     def on_created(self, event):
         try:
-            result = aT.file_classification(event.src_path, "svmFirstCrack", "svm")
+            result = aT.file_classification(event.src_path, "knnFirstCrack", "knn")
             if result[1][0] > 0.5:
                 print("Crack")
             else:
                 print("Environment")
+        except Exception as e:
+            pass
 
-        except:
-            print("Error")
 
 
-# aT.extract_features_and_train(["classifierData/crack","classifierData/environment"], 1.0, 1.0, aT.shortTermWindow, aT.shortTermStep, "svm", "svmFirstCrack", False)
+
+#aT.extract_features_and_train(["classifierData/crack","classifierData/environment"], 1.0, 1.0, aT.shortTermWindow, aT.shortTermStep, "knn", "knnFirstCrack", False)
 # aT.file_classification("data/doremi.wav", "svmSMtemp","svm")
 
+
+
+
 def start_recording_audio():
-    args = ['-t', 'waveaudio', '-d', data_dir + '/audio.wav', 'trim', '0', '01', ':', 'newfile', ':', 'restart']
+    args = ['-t', 'waveaudio', '-d', data_dir + '/' + audio_file_output_name, 'trim', '0', '01', ':', 'newfile', ':', 'restart']
     sox.core.sox(args)
 
 
 def create_and_start_observer():
     observer = Observer()
-    observer.schedule(MyEventHandler(), "./" + data_dir, recursive=False)
+    observer.schedule(MyEventHandler(), data_dir, recursive=False)
     observer.start()
     try:
         while observer.is_alive():
@@ -47,7 +53,7 @@ def create_and_start_observer():
 
 
 def remove_files():
-    for filename in os.listdir('./' + data_dir):
+    for filename in os.listdir(data_dir):
         if os.path.isfile(os.path.join(data_dir, filename)):
             os.remove(os.path.join(data_dir, filename))
 
@@ -66,7 +72,7 @@ def main():
     for t in threads:
         t.join()
 
-    print("here")
+
 
 
 # Press the green button in the gutter to run the script.
