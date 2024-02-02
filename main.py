@@ -29,12 +29,12 @@ class MyEventHandler(FileSystemEventHandler):
 # aT.extract_features_and_train(["classifierData/crack","classifierData/environment"], 1.0, 1.0, aT.shortTermWindow, aT.shortTermStep, "svm", "svmFirstCrack", False)
 # aT.file_classification("data/doremi.wav", "svmSMtemp","svm")
 
-def task1():
+def start_recording_audio():
     args = ['-t', 'waveaudio', '-d', data_dir + '/audio.wav', 'trim', '0', '01', ':', 'newfile', ':', 'restart']
     sox.core.sox(args)
 
 
-def task2():
+def create_and_start_observer():
     observer = Observer()
     observer.schedule(MyEventHandler(), "./" + data_dir, recursive=False)
     observer.start()
@@ -58,7 +58,7 @@ atexit.register(remove_files)
 def main():
     # Use a breakpoint in the code line below to debug your script.
 
-    threads = [threading.Thread(target=task1, args=()), threading.Thread(target=task2, args=())]
+    threads = [threading.Thread(target=start_recording_audio, args=()), threading.Thread(target=create_and_start_observer, args=())]
 
     for t in threads:
         t.start()
