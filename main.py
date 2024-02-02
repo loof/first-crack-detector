@@ -17,7 +17,7 @@ class MyEventHandler(FileSystemEventHandler):
     def on_created(self, event):
         try:
             result = aT.file_classification(event.src_path, "svmFirstCrack", "svm")
-            if (result[1][0] > 0.5):
+            if result[1][0] > 0.5:
                 print("Crack")
             else:
                 print("Environment")
