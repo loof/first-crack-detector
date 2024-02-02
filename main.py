@@ -11,7 +11,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 data_dir = './data'
-audio_file_output_name = 'audio.wav'
+audio_file_output_name = 'yves.wav'
 
 
 class MyEventHandler(FileSystemEventHandler):
@@ -25,15 +25,6 @@ class MyEventHandler(FileSystemEventHandler):
                 print("Environment")
         except Exception as e:
             pass
-
-
-
-
-#aT.extract_features_and_train(["classifierData/crack","classifierData/environment"], 1.0, 1.0, aT.shortTermWindow, aT.shortTermStep, "knn", "knnFirstCrack", False)
-# aT.file_classification("data/doremi.wav", "svmSMtemp","svm")
-
-
-
 
 def start_recording_audio():
     args = ['-t', 'waveaudio', '-d', data_dir + '/' + audio_file_output_name, 'trim', '0', '01', ':', 'newfile', ':', 'restart']
@@ -57,10 +48,6 @@ def remove_files():
         if os.path.isfile(os.path.join(data_dir, filename)):
             os.remove(os.path.join(data_dir, filename))
 
-
-atexit.register(remove_files)
-
-
 def main():
     # Use a breakpoint in the code line below to debug your script.
 
@@ -74,9 +61,6 @@ def main():
 
 
 
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     main()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
